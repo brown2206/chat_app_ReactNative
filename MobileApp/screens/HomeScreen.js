@@ -33,9 +33,7 @@ export default function HomeScreen() {
         }}
     /> ) : ( <JoinScreen />
     )}
-    {
-      Platform.OS === 'android' && <KeyboardAvoidingView behavior="padding" />
-    }
+    {Platform.OS === 'android' && <KeyboardAvoidingView behavior="padding" />}
     </View>
   );
 }
