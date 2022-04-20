@@ -1,42 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Platform, KeyboardAvoidingView } from 'react-native';
 import io from "socket.io-client";
 import { GiftedChat } from 'react-native-gifted-chat';
 
 export default function HomeScreen() {
-  const [messageToSend, setMessageToSend] = useState("");
   const [recvMessages, setRecvMessages] = useState([]);
   const socket = useRef(null);
 
   useEffect(() => {
     socket.current = io("http://10.0.0.191:3001");
     socket.current.on("message", message => {
-        setRecvMessages(prevState => [...prevState, message]);
+        setRecvMessages(prevState => GiftedChat.append(prevState, message));
     });
-    setRecvMessages([
-        {
-          _id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'React Native',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-        },
-      ]);
   }, []);
 
-  const sendMessage = () => {
-    socket.current.emit("message", messageToSend);
-    setMessageToSend("");
+  const onSend = (messages) => {
+    console.log(messages);
+    socket.current.emit("message", messages[0].text);
+    setRecvMessages(prevState => GiftedChat.append(prevState, messages));
   };
 
   return (
     <View style={{flex: 1}}>
     <GiftedChat
         messages={recvMessages}
-        // onSend={messages => this.onSend(messages)}
+        onSend={messages => onSend(messages)}
         user={{
             _id: 1,
         }}
@@ -47,12 +35,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
